@@ -215,14 +215,21 @@ run;
 data pred; set pred;
 *SELF-RESPONSE (use ticshrs score out of 10);
 if proxy_&w = 0 then do;
-	crim_ors_&w = exp(-8.3247 + log(1.2)*hrs_age_&w + log(1.02)*female + log(0.36)*lowedu_crim + log(0.45)*midedu_crim 
+	/*dementia*/
+	crim_ords_&w = exp(-8.3247 + log(1.2)*hrs_age_&w + log(1.02)*female + log(0.36)*lowedu_crim + log(0.45)*midedu_crim 
 						 + log(0.73)*iword_&w + log(0.65)*dword_&w + log(0.68)*serial7_&w + log(0.6)*ticshrs_&w
 						 + log(0.33)*dress_&w + log(1.30)*bath_&w + log(4.34)*eat_&w + log(9.72)*money_&w + log(2.38)*phone_&w);
-	crim_ps_&w = crim_ors_&w/(1 + crim_ors_&w);
+	/*cind*/
+	crim_orcs_&w = exp(-3.7490 + log(1.11)*hrs_age_&w + log(0.92)*female + log(1.30)*lowedu_crim + log(0.76)*midedu_crim 
+						 + log(0.80)*iword_&w + log(0.95)*dword_&w + log(0.83)*serial7_&w + log(0.67)*ticshrs_&w
+						 + log(2.76)*dress_&w + log(0.96)*bath_&w + log(0.94)*eat_&w + log(3.90)*money_&w + log(0.61)*phone_&w);
+
+	crim_ps_&w = crim_ords_&w/(1 + crim_ords_&w + crim_orcs_&w);
 	if crim_ps_&w > 0.5 then crim_dems_&w = 1;
 	else if crim_ps_&w NE . then crim_dems_&w = 0;
 
-	label crim_ors_&w = "Crimmins Dementia odds ratio for self-respondent using HRS TICS (0-10), wave &w";
+	label crim_ords_&w = "Crimmins Dementia odds for self-respondent using HRS TICS (0-10), wave &w";
+	label crim_orcs_&w = "Crimmins CIND odds for self-respondent using HRS TICS (0-10), wave &w";
 	label crim_ps_&w = "Crimmins Dementia probability for self-respondent using HRS TICS (0-10), wave &w";
 	label crim_dems_&w = "Crimmins Dementia classification for self-respondent using HRS TICS (0-10), wave &w";
 end;
